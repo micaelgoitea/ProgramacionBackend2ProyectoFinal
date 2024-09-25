@@ -9,6 +9,7 @@ import './database.js';
 import ProductModel from "./dao/models/product.model.js";
 import passport from "passport";
 import cookieParser from "cookie-parser";
+import usuarioRouter from "./routes/user.router.js";
 
 const app = express();
 const PUERTO = 8080;
@@ -29,6 +30,7 @@ app.use("/", productsRouter);
 app.use("/", cartsRouter);
 app.use("/", viewsRouter);
 app.use(express.static("./src/public"));
+app.use("/", usuarioRouter);
 
 const server = app.listen(PUERTO, () => {
     console.log(`Escuchando en el puerto ${PUERTO}`);

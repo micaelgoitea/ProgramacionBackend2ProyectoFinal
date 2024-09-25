@@ -1,6 +1,5 @@
 import { Router } from "express";
 import ProductModel from "../dao/models/product.model.js";
-
 const router = Router();
 
 router.get("/products", async(req, res) => {
@@ -27,6 +26,10 @@ router.get("/products", async(req, res) => {
 
 router.get("/realtimeproducts", (req,res) => {
     res.render("realtimeproducts");
+})
+
+router.get ("/register", (req, res) => {
+    res.render("register");
 })
 
 export default router;
