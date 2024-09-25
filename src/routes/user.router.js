@@ -41,4 +41,38 @@ router.post("/register", async (req, res) => {
     }
 });
 
+router.post("/login", async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        
+        const usuarioEncontrado = await UserModel.findOne({ username });
+
+        if (!usuarioEncontrado) {
+            return res.status(401).send("Usuario no registrado, por favor regístrate");
+        }
+
+        if (!isValidPassword(password, usuarioEncontrado)) {
+            return res.status(401).send("Contraseña incorrecta");
+        }
+
+        const token = jwt.sign(
+            { username: usuarioEncontrado.username, role: usuarioEncontrado.role },
+            "coderhouse",
+            { expiresIn: "1h" }
+        );
+
+        res.cookie("coderCookieToken", token, {
+            maxAge: 3600000, // 1 hora
+            httpOnly: true
+        });
+
+        res.redirect("/api/sessions/current");
+
+    } catch (error) {
+        console.error("Error en el servidor: ", error);
+        res.status(500).send("Error interno del servidor");
+    }
+});
+
 export default router;
