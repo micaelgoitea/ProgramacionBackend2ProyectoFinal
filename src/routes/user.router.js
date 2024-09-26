@@ -8,7 +8,7 @@ import passport from "passport";
 const router = Router();
 
 router.post("/register", async (req, res) => {
-    const { firstName, lastName, email, age, username, password } = req.body;
+    const { firstName, lastName, email, username, age, password } = req.body;
 
     try {
         const userExistente = await UserModel.findOne({ username });
@@ -16,14 +16,19 @@ router.post("/register", async (req, res) => {
             return res.status(400).send("Ese usuario ya está registrado");
         }
 
+        const emailExistente = await UserModel.findOne({ email });
+        if (emailExistente) {
+            return res.status(400).send("Ese correo ya está registrado");
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new UserModel({
-            firstName, // Se usa firstName directamente
-            lastName,  // Se usa lastName directamente
+            firstName,
+            lastName,
             email,
-            age,
             username,
+            age,
             password: hashedPassword,
         });
 
@@ -33,7 +38,7 @@ router.post("/register", async (req, res) => {
         const token = jwt.sign(
             { 
                 username: newUser.username, 
-                firstName: newUser.firstName, // Se usa firstName directamente
+                firstName: newUser.firstName,
                 role: newUser.role 
             },
             "coderhouse",
@@ -48,44 +53,40 @@ router.post("/register", async (req, res) => {
         res.redirect("/api/sessions/current");
 
     } catch (error) {
-        res.status(500).send("Error interno del Servidor");
+        res.status(500).send("Error interno del servidor");
     }
 });
+
 
 router.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        // Buscar el usuario por nombre de usuario
         const usuarioEncontrado = await UserModel.findOne({ username });
 
         if (!usuarioEncontrado) {
             return res.status(401).send("Usuario no registrado, por favor regístrate");
         }
 
-        // Verificar la contraseña
         if (!isValidPassword(password, usuarioEncontrado)) {
             return res.status(401).send("Contraseña incorrecta");
         }
 
-        // Incluir el firstName y role en el token JWT
         const token = jwt.sign(
             { 
                 username: usuarioEncontrado.username, 
-                first_name: usuarioEncontrado.first_name, // Asegúrate de usar este campo
+                firstName: usuarioEncontrado.firstName,
                 role: usuarioEncontrado.role 
             },
             "coderhouse",
             { expiresIn: "1h" }
         );
 
-        console.log("Nombre del usuario:", usuarioEncontrado.first_name); // Verifica el valor aquí
         res.cookie("coderCookieToken", token, {
-            maxAge: 3600000, // 1 hora
+            maxAge: 3600000,
             httpOnly: true
         });
 
-        // Redirigir a la ruta /current
         res.redirect("/api/sessions/current");
 
     } catch (error) {
@@ -101,8 +102,8 @@ router.post("/logout", (req, res) => {
 })
 
 router.get("/current", passport.authenticate("current", { session: false }), (req, res) => {
-    console.log(req.user); // Asegúrate de que aquí muestre el objeto del usuario
-    res.render("home", { userName: req.user.firstName }); // Asegúrate de que se pase como userName
+    console.log(req.user);
+    res.render("home", { userName: req.user.firstName });
 });
 
 
