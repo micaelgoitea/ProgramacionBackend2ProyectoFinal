@@ -12,7 +12,11 @@
     </head>
     <body>
 
-        <h1>Bienvenido {{usuario}}!</h1>
+        <h2>Bienvenido {{username}} </h2>
+        <form action="/api/sessions/logout" method="POST">
+            <button type="submit"> Logout </button>
+        </form>
+
         <h2>Mis Productos</h2>
 
         <div class="contenedorProductos">

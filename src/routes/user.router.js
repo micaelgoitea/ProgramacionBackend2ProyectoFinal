@@ -1,7 +1,9 @@
 import { Router } from "express";
 import UserModel from "../dao/models/user.model.js";
 import jwt from "jsonwebtoken";
+import { isValidPassword } from "../utils/util.js";
 import bcrypt from "bcrypt";
+import passport from "passport";
 
 const router = Router();
 
@@ -34,7 +36,7 @@ router.post("/register", async (req, res) => {
             httpOnly: true
         });
 
-        res.redirect("/home");
+        res.redirect("/api/sessions/current");
 
     } catch (error) {
         res.status(500).send("Error interno del Servidor");
@@ -63,7 +65,7 @@ router.post("/login", async (req, res) => {
         );
 
         res.cookie("coderCookieToken", token, {
-            maxAge: 3600000, // 1 hora
+            maxAge: 3600000,
             httpOnly: true
         });
 
@@ -74,5 +76,15 @@ router.post("/login", async (req, res) => {
         res.status(500).send("Error interno del servidor");
     }
 });
+
+router.post("/logout", (req, res) => {
+    res.clearCookie("coderCookieToken"); 
+    res.redirect("/login"); 
+})
+
+router.get("/current", passport.authenticate("current", { session: false }), (req, res) => {
+    res.render("home", { username: req.user.username }); 
+});
+
 
 export default router;

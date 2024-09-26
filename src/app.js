@@ -8,8 +8,9 @@ import ProductManager from "./dao/db/productManager-db.js";
 import './database.js';
 import ProductModel from "./dao/models/product.model.js";
 import passport from "passport";
+import initializePassport from "./config/passport.config.js";
 import cookieParser from "cookie-parser";
-import usuarioRouter from "./routes/user.router.js";
+import userRouter from "./routes/user.router.js";
 
 const app = express();
 const PUERTO = 8080;
@@ -25,12 +26,14 @@ app.set('view engine', 'handlebars');
 app.set('views', './src/views');
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+initializePassport();
+app.use(passport.initialize());
 app.use(express.json());
 app.use("/", productsRouter);
 app.use("/", cartsRouter);
 app.use("/", viewsRouter);
 app.use(express.static("./src/public"));
-app.use("/", usuarioRouter);
+app.use("/api/sessions", userRouter);
 
 const server = app.listen(PUERTO, () => {
     console.log(`Escuchando en el puerto ${PUERTO}`);

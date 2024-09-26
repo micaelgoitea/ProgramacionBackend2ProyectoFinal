@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-    firstName: {
+    first_name: {
         type: String,
         required: true
     },
-    lastName: {
+    last_name: {
         type: String,
         required: true
     },
@@ -18,23 +18,19 @@ const userSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    username: {
-        type: String,
-        required: true,
-    },
     password: {
         type: String,
         required: true,
     },
     cart: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Cart",
+        ref: 'carts'
     },
     role: {
         type: String,
-        enum: ["admin", "user"],
-        default: "user"
-    },
+        enum: ['admin', 'user'],
+        default: 'user'
+    }
 });
 
 const UserModel = mongoose.model("User", userSchema);
