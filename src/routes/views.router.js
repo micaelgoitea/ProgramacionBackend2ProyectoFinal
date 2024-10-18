@@ -21,7 +21,6 @@ router.get("/products", passport.authenticate("jwt", { session: false }), userOn
 
         res.render("products", {
             productos: nuevoArray,
-            carritoId: req.user.cartId,
             hasPrevPage: products.hasPrevPage,
             hasNextPage: products.hasNextPage,
             prevPage: products.prevPage,
