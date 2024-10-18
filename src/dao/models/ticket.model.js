@@ -1,28 +1,29 @@
 import mongoose from "mongoose";
-import { v4 as uuidv4 } from 'uuid';
 
-const ticketCollection = 'Tickets';
-
-const TicketSchema = new mongoose.Schema({
-    code: { 
-        type: String,
-        default: () => uuidv4(),
+const ticketSchema = new mongoose.Schema({
+    code: {
+        type: String, 
+        unique: true,
         required: true, 
-        unique: true 
-    },
-    purchase_datetime: { 
+        default: function() {
+            return `TICKET-${Math.floor(Math.random() * 1000)}`
+        }
+    }, 
+    purchase_datetime: {
         type: Date, 
-        default: () => new Date() 
-    },
-    amount: { 
+        default: Date.now, 
+        required: true
+    }, 
+    amount: {
         type: Number, 
-        required: true 
+        required: true
     },
     purchaser: {
         type: String, 
-        required: true 
+        required: true
     }
-});
+})
 
-export const TicketModel = mongoose.model(ticketCollection, TicketSchema);
+const TicketModel = mongoose.model("tickets", ticketSchema);
+
 export default TicketModel;

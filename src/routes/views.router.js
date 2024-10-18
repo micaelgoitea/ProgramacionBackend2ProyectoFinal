@@ -2,9 +2,11 @@ import { Router } from "express";
 import { adminOnly, userOnly } from "../middleware/auth.js";
 import passport from "passport";
 import ProductManager from "../dao/db/productManager-db.js";
+import CartManager from "../dao/db/cartManager-db.js";
 
 const router = Router();
 const productManager = new ProductManager();
+const cartManager = new CartManager();
 
 router.get("/products", passport.authenticate("jwt", { session: false }), userOnly, async (req, res) => {
     try {
@@ -16,7 +18,7 @@ router.get("/products", passport.authenticate("jwt", { session: false }), userOn
 
         const nuevoArray = products.docs.map(product => {
             const { _id, ...rest } = product.toObject();
-            return rest;
+            return { _id: _id.toString(), ...rest };
         });
 
         res.render("products", {
@@ -26,7 +28,9 @@ router.get("/products", passport.authenticate("jwt", { session: false }), userOn
             prevPage: products.prevPage,
             nextPage: products.nextPage,
             currentPage: products.page,
-            totalPages: products.totalPages
+            totalPages: products.totalPages,
+            user: req.user,
+            cart: req.user.cart,
         });
 
     } catch (error) {
@@ -53,5 +57,28 @@ router.get("/register", (req, res) => {
 router.get("/login", (req, res) => {
     res.render("login");
 })
+
+router.get("/carts/:cid", async (req, res) => {
+    const cartId = req.params.cid;
+
+    try {
+        const carrito = await cartManager.getCartById(cartId);
+
+        if (!carrito) {
+            console.log("No existe ese carrito con el id");
+            return res.status(404).json({ error: "Carrito no encontrado" });
+        }
+
+        const productosEnCarrito = carrito.products.map((item) => ({
+            product: item.product.toObject(),
+            quantity: item.quantity,
+        }));
+
+        res.render("carts", { productos: productosEnCarrito });
+    } catch (error) {
+        console.error("Error al obtener el carrito", error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
+});
 
 export default router;
