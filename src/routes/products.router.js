@@ -1,58 +1,27 @@
-import { Router } from "express";
-import ProductManager from "../dao/db/productManager-db.js";
+import express from "express";
+import productController from "../controllers/product.controller.js"; 
 
-const router = Router();
-const prManager = new ProductManager();
+const router = express.Router();
 
-router.get("/api/products", async (req, res) => {
-    const { limit, category, sort } = req.query;
-    try {
-        const result = await prManager.getProducts({ limit, category, sort });
-        res.send(result);
-    } catch (error) {
-        res.status(500).send("Error interno del servidor");
-    }
-});
+// Crear un nuevo producto
+router.post("/", productController.createProduct);
 
-router.get("/api/products/:pid", async (req, res) => {
-    let id = req.params.pid;
-    const product = await prManager.getProductById((id));
-    if (!product) {
-        res.send("No se encuentra el producto deseado");
-    } else {
-        res.send({ product })
-    }
-})
+// Obtener todos los productos
+router.get("/", productController.getProducts); 
 
-router.post("/api/products", async (req, res) => {
-    const newProduct = req.body;
-    try {
-        const product = await prManager.addProduct(newProduct);
-        res.status(201).send({ message: "Producto agregado exitosamente", product });
-    } catch (error) {
-        res.status(400).send({ status: "error", message: error.message });
-    }
-});
+// Obtener un producto por ID
+router.get("/:pid", productController.getProductById);
 
-router.put('/api/products/:pid', async (req, res) => {
-    const pid = req.params.pid;
-    const productoActualizado = req.body;
-    try {
-        await prManager.updateProduct(pid, productoActualizado);
-        res.status(200).json({ message: "Producto actualizado exitosamente", data: productoActualizado });
-    } catch (error) {
-        res.status(404).json({ error: error.message });
-    }
-});
+// Obtener un producto por código
+router.get("/code/:code", productController.getProductByCode);
 
-router.delete('/api/products/:pid', async (req, res) => {
-    const pid = req.params.pid;
-    try {
-        await prManager.deleteProduct(pid);
-        res.json({ message: "Producto eliminado correctamente" });
-    } catch (error) {
-        res.status(404).json({ error: error.message });
-    }
-});
+// Actualizar un producto
+router.put("/:pid", productController.updateProduct); 
+
+// Actualizar el stock de un producto
+router.put("/:pid/stock", productController.updateStock);
+
+// Eliminar un producto
+router.delete("/:pid", productController.deleteProduct);
 
 export default router;

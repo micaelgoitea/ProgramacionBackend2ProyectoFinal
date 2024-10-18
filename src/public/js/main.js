@@ -30,7 +30,6 @@ const renderProductos = (productos) => {
 const eliminarProducto = (id) => {
     console.log(`Eliminando producto con ID: ${id}`);
     socket.emit("eliminarProducto", id);
-
     socket.once("confirmacionEliminacion", (response) => {
         if (response.status === 'success') {
             console.log(`Producto con ID ${id} eliminado exitosamente`);
@@ -42,7 +41,7 @@ const eliminarProducto = (id) => {
 };
 
 const agregarProducto = () => {
-    
+
     const title = document.getElementById("inputTitle").value;
     const description = document.getElementById("inputDescription").value;
     const code = document.getElementById("inputCode").value;
@@ -62,8 +61,6 @@ const agregarProducto = () => {
         thumbnails: thumbnails
     };
 
-    console.log("Enviando nuevo producto:", nuevoProducto);
-    
     socket.emit("agregarProducto", nuevoProducto);
     socket.once("confirmacionAgregacion", (response) => {
         if (response.status === 'success') {
@@ -80,7 +77,6 @@ const agregarProducto = () => {
 document.addEventListener("DOMContentLoaded", () => {
 
     const btnAgregarProducto = document.getElementById("btnAgregarProducto");
-
     btnAgregarProducto.addEventListener("click", (event) => {
         event.preventDefault();
         agregarProducto();

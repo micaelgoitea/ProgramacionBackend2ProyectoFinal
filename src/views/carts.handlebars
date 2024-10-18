@@ -1,0 +1,23 @@
+<div class="container">
+    <h1>Tu Carrito</h1>
+
+    <ul class="cart-list">
+        {{#each products}}
+        <li class="cart-item">
+            <p><strong>Producto:</strong> {{this.product.title}}</p>
+            <p><strong>Cantidad:</strong> {{this.quantity}}</p>
+            <p><strong>Precio:</strong> ${{this.product.price}}</p>
+            <button class="remove-btn"
+                data-id="{{this.product._id}}">Eliminar</button>
+        </li>
+        {{else}}
+        <li class="cart-item">El carrito está vacío.</li>
+        {{/each}}
+    </ul>
+
+    <div class="total">
+        <strong>Total:</strong> ${{total}}
+    </div>
+
+    <button class="checkout-btn">Proceder a la Compra</button>
+</div>

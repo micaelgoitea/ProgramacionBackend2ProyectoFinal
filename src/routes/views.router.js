@@ -1,31 +1,50 @@
 import { Router } from "express";
-import ProductModel from "../dao/models/product.model.js";
+import { adminOnly, userOnly } from "../middleware/auth.js";
+import passport from "passport";
+import ProductManager from "../dao/db/productManager-db.js";
+
 const router = Router();
+const productManager = new ProductManager();
 
-router.get("/products", async (req, res) => {
-    let page = req.query.page || 1;
-    let limit = 4;
-
+router.get("/products", passport.authenticate("jwt", { session: false }), userOnly, async (req, res) => {
     try {
-        const listadoProductos = await ProductModel.paginate({}, { limit, page });
+        const { page = 1, limit = 3 } = req.query;
+        const products = await productManager.getProducts({
+            page: parseInt(page),
+            limit: parseInt(limit)
+        });
 
-        res.render("home", {
-            productos: listadoProductos.docs,
-            hasPrevPage: listadoProductos.hasPrevPage,
-            hasNextPage: listadoProductos.hasNextPage,
-            prevPage: listadoProductos.prevPage,
-            nextPage: listadoProductos.nextPage,
-            currentPage: listadoProductos.page,
-            totalPages: listadoProductos.totalPages
-        })
+        const nuevoArray = products.docs.map(product => {
+            const { _id, ...rest } = product.toObject();
+            return rest;
+        });
+
+        res.render("products", {
+            productos: nuevoArray,
+            carritoId: req.user.cartId,
+            hasPrevPage: products.hasPrevPage,
+            hasNextPage: products.hasNextPage,
+            prevPage: products.prevPage,
+            nextPage: products.nextPage,
+            currentPage: products.page,
+            totalPages: products.totalPages
+        });
 
     } catch (error) {
-        res.status(500).send("Error al cargar el listado de productos");
+        console.error("Error al obtener productos", error);
+        res.status(500).json({
+            status: 'error',
+            error: "Error interno del servidor"
+        });
     }
 });
 
-router.get("/realtimeproducts", (req, res) => {
+router.get("/realtimeproducts", passport.authenticate("jwt", { session: false }), adminOnly, (req, res) => {
     res.render("realtimeproducts");
+})
+
+router.get("/carts", (req, res) => {
+    res.render("carts");
 })
 
 router.get("/register", (req, res) => {

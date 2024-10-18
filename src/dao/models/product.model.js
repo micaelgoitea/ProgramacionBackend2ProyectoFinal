@@ -32,15 +32,16 @@ const productSchema = new mongoose.Schema({
     },
     status: {
         type: Boolean,
-        required: true
+        required: true,
+        default: true
     },
     thumbnails: {
-        type: [String]
-    }
-})
+        type: [String],
+    },
+});
 
 productSchema.plugin(mongoosePaginate);
 
-const ProductModel = mongoose.model("products", productSchema);
+const ProductModel = mongoose.model("Product", productSchema);
 
 export default ProductModel;
