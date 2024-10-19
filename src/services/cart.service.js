@@ -47,6 +47,10 @@ class CartService {
         }
     }
 
+    async addProductToCart(cartId, productId, quantity) {
+        return await cartRepository.addProductToCart(cartId, productId, quantity);
+    }
+
     async removeProductFromCart(cartId, productId) {
         try {
             const updatedCart = await cartRepository.removeProductFromCart(cartId, productId);

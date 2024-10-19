@@ -47,6 +47,10 @@ class CartRepository {
         }
     }
 
+    async addProductToCart(cartId, productId, quantity) {
+        return await cartDao.addProductToCart(cartId, productId, quantity);
+    }
+
     async removeProductFromCart(cartId, productId) {
         try {
             const updatedCart = await cartDao.removeProductFromCart(cartId, productId);

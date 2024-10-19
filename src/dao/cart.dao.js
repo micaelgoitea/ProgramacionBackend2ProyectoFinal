@@ -28,6 +28,28 @@ class CartDao {
         return updatedCart;
     }
 
+    async addProductToCart(cartId, productId, quantity) {
+        const cart = await CartModel.findById(cartId);
+        if (!cart) {
+            throw new Error("Carrito no encontrado");
+        }
+
+        const product = await ProductModel.findById(productId);
+        if (!product) {
+            throw new Error("Producto no encontrado");
+        }
+
+        const productIndex = cart.products.findIndex((p) => p.product.toString() === productId);
+
+        if (productIndex !== -1) {
+            cart.products[productIndex].quantity += quantity;
+        } else {
+            cart.products.push({ product: productId, quantity });
+        }
+
+        return await cart.save();
+    }
+
     async removeProductFromCart(cartId, productId) {
         const cart = await CartModel.findById(cartId);
         if (!cart) throw new Error('Cart not found');

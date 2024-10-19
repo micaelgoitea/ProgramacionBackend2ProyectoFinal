@@ -56,6 +56,19 @@ class CartController {
         }
     }
 
+    async addProductToCart(req, res) {
+        const cartId = req.params.cid;
+        const productId = req.params.pid;
+        const quantity = req.body.quantity || 1;
+        try {
+            const updatedCart = await cartService.addProductToCart(cartId, productId, quantity);
+            res.json(updatedCart.products);
+        } catch (error) {
+            console.error("Error al agregar producto al carrito", error);
+            res.status(500).json({ error: "Error interno del servidor" });
+        }
+    }
+
     async removeProductFromCart(req, res) {
         const { cartId, productId } = req.params;
         try {

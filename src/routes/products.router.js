@@ -4,12 +4,12 @@ import productController from "../controllers/product.controller.js";
 const router = Router();
 
 router.post("/", productController.createProduct);
-router.get("/:id", productController.getProductById);
-router.get("/code/:code", productController.getProductByCode);
+router.get("/:pid", productController.getProductById);
+router.get("/:pcode", productController.getProductByCode);
 router.get("/", productController.getAllProducts);
-router.get("/query", productController.getProductByQuery);
-router.put("/:id", productController.updateProduct);
-router.put("/:id/stock", productController.updateProductStock);
-router.delete("/:id", productController.deleteProduct);
+router.get("/:pquery", productController.getProductByQuery);
+router.put("/:pid", productController.updateProduct);
+router.put("/:pid/stock", productController.updateProductStock);
+router.delete("/:pid", productController.deleteProduct);
 
 export default router;
