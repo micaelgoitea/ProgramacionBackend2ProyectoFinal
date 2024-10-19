@@ -16,7 +16,8 @@ class UserController {
                     lastName: newUser.lastName,
                     email: newUser.email,
                     age: newUser.age,
-                    role: newUser.role
+                    role: newUser.role,
+                    cart: newUser.cart
                 },
                 process.env.JWT_SECRET || "coderhouse",
                 { expiresIn: "1h" }
@@ -24,7 +25,7 @@ class UserController {
             console.log("Token generado:", token);
     
             res.cookie("coderCookieToken", token, { maxAge: 3600000, httpOnly: true });
-            res.redirect("/api/sessions/current");
+            res.redirect("/login");
         } catch (error) {
             res.status(400).send(error.message);
         }
@@ -41,7 +42,8 @@ class UserController {
                 lastName: user.lastName,
                 email: user.email,
                 age: user.age,
-                role: user.role
+                role: user.role,
+                cart: user.cart
             }, "coderhouse", { expiresIn: "1h" });            
     
             res.cookie("coderCookieToken", token, {maxAge: 3600000, httpOnly: true});

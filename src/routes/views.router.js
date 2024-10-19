@@ -30,7 +30,7 @@ router.get("/products", passport.authenticate("jwt", { session: false }), userOn
             currentPage: products.page,
             totalPages: products.totalPages,
             user: req.user,
-            cart: req.user.cart,
+            cartId: req.user.cart._id
         });
 
     } catch (error) {
@@ -74,7 +74,10 @@ router.get("/carts/:cid", async (req, res) => {
             quantity: item.quantity,
         }));
 
-        res.render("carts", { productos: productosEnCarrito });
+        res.render("carts", { 
+            productos: productosEnCarrito, 
+            cartId: req.user.cart._id
+        });
     } catch (error) {
         console.error("Error al obtener el carrito", error);
         res.status(500).json({ error: "Error interno del servidor" });
