@@ -1,33 +1,37 @@
-import productDao from "../dao/product.dao.js";
+import productDao from "../dao/product.dao.js"
 
 class ProductRepository {
+
     async createProduct(productData) {
         return await productDao.createProduct(productData);
     }
 
     async getProductById(id) {
-        return await productDao.findById(id);
-    }
-
-    async getProductsByQuery(query) {
-        return await productDao.findByQuery(query);
+        return await productDao.getProductById(id);
     }
 
     async getProductByCode(code) {
         return await productDao.getProductByCode(code);
     }
 
+    async getAllProducts(filter = {}, options = {}) {
+        return await productDao.getAllProducts(filter, options);
+    }
+
+    async getProductByQuery(query) {
+        return await productDao.getProductByQuery(query);
+    }
+
     async updateProduct(id, productData) {
         return await productDao.updateProduct(id, productData);
     }
 
-    async deleteProduct(id) {
-        return await productDao.deleteProduct(id);
+    async updateProductStock(id, quantity) {
+        return await productDao.updateProductStock(id, quantity);
     }
 
-
-    async updateStock(id, quantity) {
-        return await productDao.updateStock(id, quantity);
+    async deleteProduct(id) {
+        return await productDao.deleteProduct(id);
     }
 }
 

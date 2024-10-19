@@ -1,27 +1,15 @@
-import express from "express";
-import productController from "../controllers/product.controller.js"; 
+import { Router } from "express";
+import productController from "../controllers/product.controller.js";
 
-const router = express.Router();
+const router = Router();
 
-// Crear un nuevo producto
 router.post("/", productController.createProduct);
-
-// Obtener todos los productos
-router.get("/", productController.getProducts); 
-
-// Obtener un producto por ID
-router.get("/:pid", productController.getProductById);
-
-// Obtener un producto por código
+router.get("/:id", productController.getProductById);
 router.get("/code/:code", productController.getProductByCode);
-
-// Actualizar un producto
-router.put("/:pid", productController.updateProduct); 
-
-// Actualizar el stock de un producto
-router.put("/:pid/stock", productController.updateStock);
-
-// Eliminar un producto
-router.delete("/:pid", productController.deleteProduct);
+router.get("/", productController.getAllProducts);
+router.get("/query", productController.getProductByQuery);
+router.put("/:id", productController.updateProduct);
+router.put("/:id/stock", productController.updateProductStock);
+router.delete("/:id", productController.deleteProduct);
 
 export default router;

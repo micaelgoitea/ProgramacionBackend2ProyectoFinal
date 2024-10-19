@@ -11,16 +11,7 @@ class CartManager {
             throw error;
         }
     }
-
-    async getCarts() {
-        try {
-            return await CartModel.find();
-        } catch (error) {
-            console.error("Error al obtener los carritos:", error);
-            throw error;
-        }
-    }
-
+    
     async getCartById(id) {
         try {
             const carritoBuscado = await CartModel.findById(id).populate('products.product', '_id title price');
@@ -30,6 +21,15 @@ class CartManager {
             return carritoBuscado;
         } catch (error) {
             console.error("Error al obtener el carrito por ID:", error);
+            throw error;
+        }
+    }
+
+    async getCarts() {
+        try {
+            return await CartModel.find();
+        } catch (error) {
+            console.error("Error al obtener los carritos:", error);
             throw error;
         }
     }
@@ -74,18 +74,6 @@ class CartManager {
         }
     }
 
-    async emptyCart(cartId) {
-        try {
-            const carritoBuscado = await this.getCartById(cartId);
-            carritoBuscado.products = [];
-            await carritoBuscado.save();
-            return carritoBuscado;
-        } catch (error) {
-            console.error("Error al vaciar el carrito:", error);
-            throw error;
-        }
-    }
-
     async removeProductFromCart(cartId, productId) {
         try {
             const carritoBuscado = await this.getCartById(cartId);
@@ -100,6 +88,13 @@ class CartManager {
             throw error;
         }
     }
+
+    async deleteCart(id) {
+        const deletedCart = await CartModel.findByIdAndDelete(id);
+        if (!deletedCart) throw new Error('Cart not found');
+        return deletedCart;
+    }
+
 }
 
 export default CartManager;

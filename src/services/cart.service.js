@@ -3,35 +3,66 @@ import cartRepository from "../repositories/cart.repository.js";
 class CartService {
 
     async createCart() {
-        return await cartRepository.createCart();
+        try {
+            const newCart = await cartRepository.createCart();
+            return newCart;
+        } catch (error) {
+            throw new Error(`Service Error - creating cart: ${error.message}`);
+        }
     }
 
-    async getCartProducts(cartId) {
-        return await cartRepository.getCartById(cartId);
+    async saveCart(cartData) {
+        try {
+            const savedCart = await cartRepository.saveCart(cartData);
+            return savedCart;
+        } catch (error) {
+            throw new Error(`Service Error - saving cart: ${error.message}`);
+        }
     }
 
-    async addProductInCart(cartId, productId, quantity) {
-        return await cartRepository.addProductInCart(cartId, productId, quantity);
+    async getCartById(id) {
+        try {
+            const cart = await cartRepository.getCartById(id);
+            return cart;
+        } catch (error) {
+            throw new Error(`Service Error - fetching cart by ID ${id}: ${error.message}`);
+        }
     }
 
     async getCarts() {
-        return await cartRepository.getCarts();
+        try {
+            const carts = await cartRepository.getCarts();
+            return carts;
+        } catch (error) {
+            throw new Error(`Service Error - fetching all carts: ${error.message}`);
+        }
     }
 
-    async getCartById(cartId) {
-        return await cartRepository.getCartById(cartId);
+    async updateCart(id, cartData) {
+        try {
+            const updatedCart = await cartRepository.updateCart(id, cartData);
+            return updatedCart;
+        } catch (error) {
+            throw new Error(`Service Error - updating cart with ID ${id}: ${error.message}`);
+        }
     }
 
-    async deleteCart(cartId) {
-        return await cartRepository.deleteCart(cartId);
+    async removeProductFromCart(cartId, productId) {
+        try {
+            const updatedCart = await cartRepository.removeProductFromCart(cartId, productId);
+            return updatedCart;
+        } catch (error) {
+            throw new Error(`Service Error - removing product ${productId} from cart ${cartId}: ${error.message}`);
+        }
     }
 
-    async deleteProductOfCart(cartId, productId) {
-        return await cartRepository.deleteProductOfCart(cartId, productId);
-    }
-
-    async updateCart(cartId, products) {
-        return await cartRepository.updateCart(cartId, products);
+    async deleteCart(id) {
+        try {
+            const deletedCart = await cartRepository.deleteCart(id);
+            return deletedCart;
+        } catch (error) {
+            throw new Error(`Service Error - deleting cart with ID ${id}: ${error.message}`);
+        }
     }
 }
 

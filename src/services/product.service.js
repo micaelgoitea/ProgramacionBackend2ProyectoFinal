@@ -1,6 +1,7 @@
-import productRepository from "../repositories/product.repository.js";
+import productRepository from "../repositories/product.repository.js"
 
 class ProductService {
+
     async createProduct(productData) {
         return await productRepository.createProduct(productData);
     }
@@ -9,24 +10,28 @@ class ProductService {
         return await productRepository.getProductById(id);
     }
 
-    async getProductsByQuery(query) {
-        return await productRepository.getProductsByQuery(query);
+    async getProductByCode(code) {
+        return await productRepository.getProductByCode(code);
+    }
+
+    async getAllProducts(filter = {}, options = {}) {
+        return await productRepository.getAllProducts(filter, options);
+    }
+
+    async getProductByQuery(query) {
+        return await productRepository.getProductByQuery(query);
     }
 
     async updateProduct(id, productData) {
         return await productRepository.updateProduct(id, productData);
     }
 
+    async updateProductStock(id, quantity) {
+        return await productRepository.updateProductStock(id, quantity);
+    }
+
     async deleteProduct(id) {
         return await productRepository.deleteProduct(id);
-    }
-
-    async getProductByCode(code) {
-        return await productRepository.getProductByCode(code);
-    }
-
-    async updateStock(id, quantity) {
-        return await productRepository.updateStock(id, quantity);
     }
 }
 

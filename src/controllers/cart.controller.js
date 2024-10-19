@@ -1,96 +1,136 @@
 import cartService from "../services/cart.service.js";
+import productService from "../services/product.service.js";
+import userService from "../services/user.service.js";
+import TicketService from "../services/ticket.service.js";
 
 class CartController {
 
     async createCart(req, res) {
         try {
             const newCart = await cartService.createCart();
-            res.status(201).json(newCart);
+            return res.status(201).json(newCart);
         } catch (error) {
-            console.error("Error al crear un nuevo carrito:", error);
-            res.status(500).send("Error al crear un nuevo carrito");
+            return res.status(500).json({ error: `Controller Error - creating cart: ${error.message}` });
         }
     }
 
-    async getCart(req, res) {
-        const { cid } = req.params;
+    async saveCart(req, res) {
+        const cartData = req.body;
         try {
-            const cart = await cartService.getCartById(cid);
-            if (!cart) return res.status(404).send("Carrito no encontrado");
-            res.json(cart);
+            const savedCart = await cartService.saveCart(cartData);
+            return res.status(201).json(savedCart);
         } catch (error) {
-            console.error(`Error al obtener el carrito ${cid}:`, error);
-            res.status(500).send("Error al obtener el carrito deseado");
+            return res.status(500).json({ error: `Controller Error - saving cart: ${error.message}` });
         }
     }
 
-    async getCartProducts(req, res) {
-        const cartId = req.params.cid;
+    async getCartById(req, res) {
+        const { id } = req.params;
         try {
-            const cart = await cartService.getCartProducts(cartId);
-            if (!cart) {
-                return res.status(404).json({ error: "Carrito no encontrado" });
-            }
-            res.json(cart.products);
+            const cart = await cartService.getCartById(id);
+            if (!cart) return res.status(404).json({ error: 'Cart not found' });
+            return res.status(200).json(cart);
         } catch (error) {
-            console.error("Error al obtener el carrito", error);
-            res.status(500).json({ error: "Error interno del servidor" });
+            return res.status(500).json({ error: `Controller Error - fetching cart by ID ${id}: ${error.message}` });
         }
     }
 
-    async addProductToCart(req, res) {
-        const {cid, pid} = req.params; 
-        const {quantity = 1} = req.body; 
+    async getCarts(req, res) {
         try {
-            const cart = await cartService.getCartById(cid);
-            if(!cart) return res.status(404).send("Carrito no encontrado");
-
-            const existingProduct = cart.products.find(item => item.product.toString() === pid); 
-            if(existingProduct) {
-                existingProduct.quantity += quantity; 
-            } else {
-                cart.products.push({product: pid, quantity }); 
-            }
-            await cartService.updateCart(cid, cart); 
-            res.json(cart);
+            const carts = await cartService.getCarts();
+            return res.status(200).json(carts);
         } catch (error) {
-            res.status(500).send("Error interno del servidor"); 
+            return res.status(500).json({ error: `Controller Error - fetching all carts: ${error.message}` });
         }
     }
 
-    async deleteProductOfCart(req, res) {
-        const { cid, pid } = req.params;
+    async updateCart(req, res) {
+        const { id } = req.params;
+        const cartData = req.body;
         try {
-            const cart = await cartService.deleteProductOfCart(cid, pid);
-            res.status(200).json(cart);
+            const updatedCart = await cartService.updateCart(id, cartData);
+            if (!updatedCart) return res.status(404).json({ error: 'Cart not found' });
+            return res.status(200).json(updatedCart);
         } catch (error) {
-            console.error(`Error al eliminar producto ${pid} del carrito ${cid}:`, error);
-            res.status(500).json({ error: 'Error al eliminar el producto del carrito' });
+            return res.status(500).json({ error: `Controller Error - updating cart with ID ${id}: ${error.message}` });
         }
     }
 
-    async deleteAllProductsOfCart(req, res) {
-        const { cid } = req.params;
+    async removeProductFromCart(req, res) {
+        const { cartId, productId } = req.params;
         try {
-            const cart = await cartService.deleteCart(cid);
-            res.status(200).json(cart);
+            const updatedCart = await cartService.removeProductFromCart(cartId, productId);
+            if (!updatedCart) return res.status(404).json({ error: 'Cart or product not found' });
+            return res.status(200).json(updatedCart);
         } catch (error) {
-            console.error(`Error al eliminar todos los productos del carrito ${cid}:`, error);
-            res.status(500).send("Error al eliminar todos los productos del carrito");
+            return res.status(500).json({ error: `Controller Error - removing product ${productId} from cart ${cartId}: ${error.message}` });
         }
     }
 
     async deleteCart(req, res) {
-        const { cid } = req.params;
+        const { id } = req.params;
         try {
-            const cart = await cartService.getCartById(cid);
-            if (!cart) return res.status(404).send("Carrito no encontrado");
-            await cartService.deleteCart(cid);
-            res.status(200).send("Carrito eliminado correctamente");
+            const deletedCart = await cartService.deleteCart(id);
+            if (!deletedCart) return res.status(404).json({ error: 'Cart not found' });
+            return res.status(200).json(deletedCart);
         } catch (error) {
-            console.error(`Error al eliminar el carrito ${cid}:`, error);
-            res.status(500).send("Error al eliminar el carrito");
+            return res.status(500).json({ error: `Controller Error - deleting cart with ID ${id}: ${error.message}` });
         }
+    }
+
+    async purchaseCart(req, res) {
+        const carritoId = req.params.cid;
+        try {
+            
+            const carrito = await cartService.getCartById(carritoId);
+            const arrayProductos = carrito.products;
+
+            const productosNoDisponibles = [];
+            const productosComprados = [];
+
+            for (const item of arrayProductos) {
+                const productId = item.product;
+                const product = await productService.getProductById(productId);
+                if (product.stock >= item.quantity) {
+                    await productService.updateProductStock(productId, product.stock - item.quantity);
+                    productosComprados.push(item);
+                } else {
+                    productosNoDisponibles.push(item);
+                }
+            }
+
+            // Obtener el usuario del carrito
+            const usuarioDelCarrito = await userService.getUserByCartId(carritoId);
+
+            // Crear el ticket de compra
+            const ticketData = {
+                purchase_datetime: new Date(),
+                amount: this.calcularTotal(productosComprados),
+                purchaser: usuarioDelCarrito.username,
+            };
+
+            const ticket = await TicketService.createTicket(ticketData);
+
+            // Actualizar el carrito con productos no disponibles
+            await cartService.updateCart(carritoId, { products: productosNoDisponibles });
+            
+            return res.json({
+                message: "Compra generada",
+                ticket: {
+                    id: ticket._id,
+                    code: ticket.code,
+                    amount: ticket.amount,
+                    purchaser: ticket.purchaser,
+                },
+                productosNoDisponibles: productosNoDisponibles.map((item) => item.product),
+            });
+        } catch (error) {
+            return res.status(500).json({ error: `Error del servidor al crear ticket: ${error.message}` });
+        }
+    }
+
+    calcularTotal(productosComprados) {
+        return productosComprados.reduce((total, item) => total + item.quantity * item.product.price, 0);
     }
 }
 
